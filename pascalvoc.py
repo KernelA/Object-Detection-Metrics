@@ -305,7 +305,6 @@ if __name__ == "__main__":
     # print('detCoordType = %s' % detCoordType)
     # print('showPlot %s' % showPlot)
 
-    print(gtFolder)
     # Get groundtruth boxes
     allBoundingBoxes, allClasses = getBoundingBoxes(
         gtFolder, True, gtFormat, gtCoordType, imgSize=imgSize)
@@ -318,7 +317,6 @@ if __name__ == "__main__":
     acc_AP = 0
     validClasses = 0
 
-    print(allBoundingBoxes)
 
     # Plot Precision x Recall curve
     detections = evaluator.PlotPrecisionRecallCurve(
@@ -336,8 +334,6 @@ if __name__ == "__main__":
             "mAP": None,
             "classes": []
         }
-
-        print(detections)
 
         # each detection is a class
         for metricsPerClass in detections:
