@@ -81,12 +81,11 @@ def ValidateCoordinatesTypes(arg, argName, errors):
 def ValidatePaths(arg, nameArg, errors):
     if arg is None:
         errors.append('argument %s: invalid directory' % nameArg)
-    elif os.path.isdir(arg) is False and os.path.isdir(os.path.join(currentPath, arg)) is False:
-        errors.append('argument %s: directory does not exist \'%s\'' % (nameArg, arg))
+    elif os.path.isdir(arg) is False:
+        pass
+        # errors.append('argument %s: directory does not exist \'%s\'' % (nameArg, arg))
     # elif os.path.isdir(os.path.join(currentPath, arg)) is True:
     #     arg = os.path.join(currentPath, arg)
-    else:
-        arg = os.path.join(currentPath, arg)
     return arg
 
 
@@ -114,7 +113,7 @@ def getBoundingBoxes(directory,
     # x, y represents the most top-left coordinates of the bounding box
     # x2, y2 represents the most bottom-right coordinates of the bounding box
     for f in files:
-        nameOfImage = f.replace(".txt", "")
+        nameOfImage = os.path.basename(f).replace(".txt", "")
         with open(f, "r") as fh1:
             for line in map(str.strip, fh1):
                 if not line:
@@ -163,9 +162,9 @@ def getBoundingBoxes(directory,
                     allClasses.append(idClass)
     return allBoundingBoxes, allClasses
 
+
 if __name__ == "__main__":
     # Get current path to set default folders
-    currentPath = os.path.dirname(os.path.abspath(__file__))
 
     VERSION = '0.1 (beta)'
 
@@ -183,14 +182,14 @@ if __name__ == "__main__":
         '-gt',
         '--gtfolder',
         dest='gtFolder',
-        default=os.path.join(currentPath, 'groundtruths'),
+        default='groundtruths',
         metavar='',
         help='folder containing your ground truth bounding boxes')
     parser.add_argument(
         '-det',
         '--detfolder',
         dest='detFolder',
-        default=os.path.join(currentPath, 'detections'),
+        default='detections',
         metavar='',
         help='folder containing your detected bounding boxes')
     # Optional
@@ -259,7 +258,7 @@ if __name__ == "__main__":
         gtFolder = ValidatePaths(args.gtFolder, '-gt/--gtfolder', errors)
     else:
         # errors.pop()
-        gtFolder = os.path.join(currentPath, 'groundtruths')
+        gtFolder = 'groundtruths'
         if os.path.isdir(gtFolder) is False:
             errors.append('folder %s not found' % gtFolder)
     # Coordinates types
@@ -275,13 +274,13 @@ if __name__ == "__main__":
         detFolder = ValidatePaths(args.detFolder, '-det/--detfolder', errors)
     else:
         # errors.pop()
-        detFolder = os.path.join(currentPath, 'detections')
+        detFolder = 'detections'
         if os.path.isdir(detFolder) is False:
             errors.append('folder %s not found' % detFolder)
     if args.savePath is not None:
         savePath = ValidatePaths(args.savePath, '-sp/--savepath', errors)
     else:
-        savePath = os.path.join(currentPath, 'results')
+        savePath = 'results'
     # Validate savePath
     # If error, show error messages
     if len(errors) != 0:
@@ -292,8 +291,7 @@ if __name__ == "__main__":
         sys.exit()
 
     # Create directory to save results
-    shutil.rmtree(savePath, ignore_errors=True)  # Clear folder
-    os.makedirs(savePath)
+    os.makedirs(savePath, exist_ok=True)
     # Show plot during execution
     showPlot = args.showPlot
 
@@ -307,6 +305,7 @@ if __name__ == "__main__":
     # print('detCoordType = %s' % detCoordType)
     # print('showPlot %s' % showPlot)
 
+    print(gtFolder)
     # Get groundtruth boxes
     allBoundingBoxes, allClasses = getBoundingBoxes(
         gtFolder, True, gtFormat, gtCoordType, imgSize=imgSize)
@@ -318,6 +317,8 @@ if __name__ == "__main__":
     evaluator = Evaluator()
     acc_AP = 0
     validClasses = 0
+
+    print(allBoundingBoxes)
 
     # Plot Precision x Recall curve
     detections = evaluator.PlotPrecisionRecallCurve(
@@ -336,6 +337,8 @@ if __name__ == "__main__":
             "classes": []
         }
 
+        print(detections)
+
         # each detection is a class
         for metricsPerClass in detections:
 
@@ -347,7 +350,8 @@ if __name__ == "__main__":
             totalPositives = metricsPerClass['total positives']
             total_TP = metricsPerClass['total TP']
             total_FP = metricsPerClass['total FP']
-            metricsPerClass["nPrecision"]
+            metricsPerClass['precision'] = list(metricsPerClass['precision'])
+            metricsPerClass['recall'] = list(metricsPerClass['recall'])
 
             if totalPositives > 0:
                 validClasses = validClasses + 1
