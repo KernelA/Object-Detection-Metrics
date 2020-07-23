@@ -217,7 +217,7 @@ class Evaluator:
                             idxEq = np.argwhere(mrec == r)
                             nrec.append(r)
                             nprec.append(max([mpre[int(id)] for id in idxEq]))
-                    plt.plot(nrec, nprec, "или", label='11-точечная интерполированная точность')
+                    plt.plot(nrec, nprec, "or", label='11-точечная интерполированная точность')
             plt.plot(recall, precision, label='Точность')
             plt.xlabel('Полнота')
             plt.ylabel('Точность')
