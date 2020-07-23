@@ -204,7 +204,7 @@ class Evaluator:
             plt.close()
             if showInterpolatedPrecision:
                 if method == MethodAveragePrecision.EveryPointInterpolation:
-                    plt.plot(mrec, mpre, '--r', label='Interpolated precision (every point)')
+                    plt.plot(mrec, mpre, '--r', label='Интерполированная точность (каждая точка)')
                 elif method == MethodAveragePrecision.ElevenPointInterpolation:
                     # Uncomment the line below if you want to plot the area
                     # plt.plot(mrec, mpre, 'or', label='11-point interpolated precision')
@@ -217,16 +217,16 @@ class Evaluator:
                             idxEq = np.argwhere(mrec == r)
                             nrec.append(r)
                             nprec.append(max([mpre[int(id)] for id in idxEq]))
-                    plt.plot(nrec, nprec, 'or', label='11-point interpolated precision')
-            plt.plot(recall, precision, label='Precision')
-            plt.xlabel('recall')
-            plt.ylabel('precision')
+                    plt.plot(nrec, nprec, "или", label='11-точечная интерполированная точность')
+            plt.plot(recall, precision, label='Точность')
+            plt.xlabel('Полнота')
+            plt.ylabel('Точность')
             if showAP:
                 ap_str = "{0:.2f}%".format(average_precision * 100)
                 # ap_str = "{0:.4f}%".format(average_precision * 100)
-                plt.title('Precision x Recall curve \nClass: %s, AP: %s' % (str(classId), ap_str))
+                plt.title('Кривая Точности x Полноты \nКласс: %s, AP: %s' % (str(classId), ap_str))
             else:
-                plt.title('Precision x Recall curve \nClass: %s' % str(classId))
+                plt.title('Кривая Точности x Полноты \nКласс: %s' % str(classId))
             plt.legend(shadow=True)
             plt.grid()
             ############################################################
