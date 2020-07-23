@@ -17,6 +17,7 @@ import shutil
 # from argparse import RawTextHelpFormatter
 import sys
 import json
+import csv
 
 import _init_paths
 from BoundingBox import BoundingBox
@@ -317,7 +318,6 @@ if __name__ == "__main__":
     acc_AP = 0
     validClasses = 0
 
-
     # Plot Precision x Recall curve
     detections = evaluator.PlotPrecisionRecallCurve(
         allBoundingBoxes,  # Object containing all bounding boxes (ground truths and detections)
@@ -328,16 +328,17 @@ if __name__ == "__main__":
         savePath=savePath,
         showGraphic=showPlot)
 
-    with open(os.path.join(savePath, 'results.json'), 'w', encoding="utf-8") as f:
+    with open(os.path.join(savePath, 'results.json'), 'w', encoding="utf-8") as f, open(os.path.join(savePath, "results.csv"), "w", encoding="utf-8", newline='') as csv_file:
 
         res = {
             "mAP": None,
             "classes": []
         }
 
+        csv_writer = None
+
         # each detection is a class
         for metricsPerClass in detections:
-
             # Get metric values per each class
             cl = metricsPerClass['class']
             ap = metricsPerClass['AP']
@@ -356,6 +357,17 @@ if __name__ == "__main__":
                 rec = ['%.2f' % r for r in recall]
                 ap_str = "{0:.2f}%".format(ap * 100)
             res["classes"].append(metricsPerClass)
+
+            metricsPerClass.pop("precision")
+            metricsPerClass.pop("recall")
+            metricsPerClass.pop("interpolated precision")
+            metricsPerClass.pop("interpolated recall")
+
+            if csv_writer is None:
+                csv_writer = csv.DictWriter(csv_file, fieldnames=metricsPerClass)
+                csv_writer.writeheader()
+
+            csv_writer.writerow(metricsPerClass)
 
         mAP = acc_AP / validClasses
         res["mAP"] = mAP
